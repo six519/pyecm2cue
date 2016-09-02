@@ -249,7 +249,7 @@ static PyObject *
 pyecm2cue_unecm(PyObject *self, PyObject *args){
     char *infilename;
     char *outfilename;
-    //const char *retValue;
+    int unecm_ret = 0;
 
     FILE *fin, *fout;
 
@@ -259,12 +259,10 @@ pyecm2cue_unecm(PyObject *self, PyObject *args){
     eccedc_init();
 
     if(strlen(infilename) < 5) {
-      //fprintf(stderr, "filename '%s' is too short\n", infilename);
       PyErr_SetString(PyECM2CueError, "filename is too short");
       return NULL;
     }
     if(strcasecmp(infilename + strlen(infilename) - 4, ".ecm")) {
-      //fprintf(stderr, "filename must end in .ecm\n");
       PyErr_SetString(PyECM2CueError, "filename must end in .ecm");
       return NULL;
     }
@@ -278,24 +276,25 @@ pyecm2cue_unecm(PyObject *self, PyObject *args){
 
     fin = fopen(infilename, "rb");
     if(!fin) {
-      //perror(infilename);
-      //return 1;
       PyErr_SetString(PyECM2CueError, "Cannot open file");
       return NULL;
     }
     fout = fopen(outfilename, "wb");
     if(!fout) {
-      //perror(outfilename);
       PyErr_SetString(PyECM2CueError, "Cannot write file");
       fclose(fin);
       return NULL;
-      //return 1;
     }
 
-    unecmify(fin, fout);
+    unecm_ret = unecmify(fin, fout);
 
     fclose(fout);
     fclose(fin);
+
+    if(unecm_ret != 0) {
+      PyErr_SetString(PyECM2CueError, "Cannot decode file");
+      return NULL;
+    }
 
     return Py_BuildValue("s", outfilename);
 }
