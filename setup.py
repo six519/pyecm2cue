@@ -4,8 +4,8 @@ from distutils.core import setup
 from distutils.extension import Extension
 
 setup(name="pyecm2cue",
-    version="1.0",
-    description="",
+    version="1.1",
+    description="C++ Python Extension To Decode ECM File And Generate Cue File",
     author="Ferdinand Silva",
     author_email="ferdinandsilva@ferdinandsilva.com",
     url="https://github.com/six519/pyecm2cue",
