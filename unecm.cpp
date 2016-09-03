@@ -251,7 +251,7 @@ pyecm2cue_unecm(PyObject *self, PyObject *args){
     char *outfilename;
     int unecm_ret = 0;
 
-    FILE *fin, *fout;
+    FILE *fin, *fout, *cue_file;
 
     if (!PyArg_ParseTuple(args, "s", &infilename))
         return NULL;
@@ -295,6 +295,13 @@ pyecm2cue_unecm(PyObject *self, PyObject *args){
       PyErr_SetString(PyECM2CueError, "Cannot decode file");
       return NULL;
     }
+
+    cue_file = fopen(strcat(outfilename, ".cue"), "w");
+    if(!cue_file) {
+      PyErr_SetString(PyECM2CueError, "Cannot write cue file");
+      return NULL;
+    }
+    fclose(cue_file);
 
     return Py_BuildValue("s", outfilename);
 }
