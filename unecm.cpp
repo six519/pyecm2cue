@@ -246,9 +246,10 @@ corrupt:
 static PyObject *PyECM2CueError;
 
 static PyObject *
-pyecm2cue_unecm(PyObject *self, PyObject *args){
+pyecm2cue_process(PyObject *self, PyObject *args){
     char *infilename;
     char *outfilename;
+    char *oldfilename;
     int unecm_ret = 0;
 
     FILE *fin, *fout, *cue_file;
@@ -268,6 +269,7 @@ pyecm2cue_unecm(PyObject *self, PyObject *args){
     }
 
     outfilename = static_cast<char*>(malloc(strlen(infilename) - 3));
+    oldfilename = static_cast<char*>(malloc(strlen(infilename) - 3));
     if(!outfilename) abort();
     memcpy(outfilename, infilename, strlen(infilename) - 4);
     outfilename[strlen(infilename) - 4] = 0;
@@ -296,18 +298,22 @@ pyecm2cue_unecm(PyObject *self, PyObject *args){
       return NULL;
     }
 
+    strcpy(oldfilename, outfilename);
     cue_file = fopen(strcat(outfilename, ".cue"), "w");
     if(!cue_file) {
       PyErr_SetString(PyECM2CueError, "Cannot write cue file");
       return NULL;
     }
+    fprintf(cue_file, "FILE \"%s\" BINARY\n", oldfilename);
+    fprintf(cue_file, "\tTRACK 01 MODE1/2352\n");
+    fprintf(cue_file, "\t\tINDEX 01 00:00:00");
     fclose(cue_file);
 
     return Py_BuildValue("s", outfilename);
 }
 
 static PyMethodDef PyECM2CueMethods[] = {
-    {"unecm",  pyecm2cue_unecm, METH_VARARGS, "Decode Error Code Modeler file"}
+    {"process",  pyecm2cue_process, METH_VARARGS, "Decode ECM file and generate cue file"}
  };
 
 PyMODINIT_FUNC
